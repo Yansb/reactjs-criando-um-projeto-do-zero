@@ -26,20 +26,57 @@ interface PostProps {
   post: Post;
 }
 
-// export default function Post() {
-//   // TODO
-// }
+export default function Post({ post }: PostProps) {
+  return (
+    <div>
+      <img src={post.data.banner} alt={post.data.title} />
+      <h1>{post.data.title}</h1>
+      <div>
+        <span>{post.first_publication_date}</span>
+        <span>{post.data.author}</span>
+        <span>4min</span>
+        {post.data.content.map(content => (
+          <div>
+            <h3>{content.heading}</h3>
+            {content.body.map(body => (
+              <p>{body.text}</p>
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
-// export const getStaticPaths = async () => {
-//   const prismic = getPrismicClient();
-//   const posts = await prismic.query(TODO);
+export const getStaticPaths: GetStaticPaths = async () => {
+  return {
+    paths: [{ params: { slug: 'conteudo-aqui' } }],
+    fallback: 'blocking',
+  };
+};
 
-//   // TODO
-// };
+export const getStaticProps: GetStaticProps = async ({ params }) => {
+  const { slug } = params;
 
-// export const getStaticProps = async context => {
-//   const prismic = getPrismicClient();
-//   const response = await prismic.getByUID(TODO);
+  const prismic = getPrismicClient();
 
-//   // TODO
-// };
+  const response = await prismic.getByUID('posts', String(slug), {});
+
+  const post: Post = {
+    data: {
+      author: response.data.author,
+      banner: response.data.banner,
+      title: response.data.title,
+      content: response.data.content,
+    },
+    first_publication_date: new Date(
+      response.last_publication_date
+    ).toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+    }),
+  };
+
+  return { props: { post } };
+};

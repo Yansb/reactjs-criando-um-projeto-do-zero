@@ -1,3 +1,6 @@
+import React from 'react';
+import styles from './header.module.scss';
+
 export default function Header() {
-  // TODO
+  return <img className={styles.logo} src="/images/Logo.svg" alt="logo" />;
 }
